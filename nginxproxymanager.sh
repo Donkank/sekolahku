@@ -20,6 +20,19 @@ variables
 color
 catch_errors
 
+function install_dependencies() {
+  msg_info "Installing Dependencies (Customized for Debian 13)"
+  
+  # Tentukan paket PCRE yang benar
+  local pcre_pkg="libpcre2-dev" # Default ke PCRE2 untuk Debian 13+
+  
+  # Jalankan apt install dengan paket yang tepat
+  $STD apt update
+  $STD apt install -y apache2-utils logrotate build-essential "$pcre_pkg" libssl-dev zlib1g-dev git python3 python3-dev python3-pip python3-venv python3-cffi
+  
+  msg_ok "Installed Dependencies"
+}
+
 function update_script() {
   header_info
   check_container_storage
@@ -55,10 +68,8 @@ function update_script() {
   fi
 
   local pcre_pkg="libpcre3-dev"
-  if [[ "$(cat /etc/debian_version)" =~ ^13\. ]]; then
+  if grep -qE 'VERSION_ID="1[3-9]"' /etc/os-release 2>/dev/null; then
     pcre_pkg="libpcre2-dev"
-  else
-    pcre_pkg="libpcre3-dev"
   fi
   $STD apt install -y build-essential "$pcre_pkg" libssl-dev zlib1g-dev
 
